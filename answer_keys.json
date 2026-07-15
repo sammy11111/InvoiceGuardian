@@ -1,0 +1,1084 @@
+{
+  "schema_version": "1.2",
+  "dataset_version": "v1.3-2026-07-15",
+  "note": "Page numbers follow scenario-spec.md 3.4 rendering assumption; re-record from rendered PDFs before FROZEN. Quotes are canonical and must match spec section 3 verbatim. All monetary values are decimal strings; parse as Decimal. confidence_expectation is non-scored metadata in v1 (deterministic=HIGH, semantic=MEDIUM, escalate=ABSTAIN). Each scenario is analyzed as a single-invoice run against the cached MSA/SOW extraction; one invoice per calendar month keeps the monthly-cap ground truth unambiguous under both invoice-date and service-period readings of MSA 4.3.",
+  "documents": {
+    "MSA-2026-014": {
+      "type": "contract",
+      "parties": [
+        "Maplecore Logistics Inc.",
+        "Northbridge Consulting Ltd."
+      ],
+      "effective_from": "2026-03-01",
+      "effective_to": "2027-02-28"
+    },
+    "SOW-2026-03": {
+      "type": "sow",
+      "period_from": "2026-04-01",
+      "period_to": "2026-09-30"
+    }
+  },
+  "expected_extractions": {
+    "rate_card": [
+      {
+        "role": "Senior Consultant",
+        "rate_cad_per_hour": "150.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      },
+      {
+        "role": "Consultant",
+        "rate_cad_per_hour": "110.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      },
+      {
+        "role": "Project Manager",
+        "rate_cad_per_hour": "135.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      }
+    ],
+    "monthly_cap_cad": {
+      "value": "25000.00",
+      "source": {
+        "document_id": "MSA-2026-014",
+        "section": "4.3",
+        "page": 2
+      }
+    },
+    "sow_monthly_hour_limits": [
+      {
+        "role": "Senior Consultant",
+        "max_hours_per_month": 100,
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      },
+      {
+        "role": "Consultant",
+        "max_hours_per_month": 80,
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      },
+      {
+        "role": "Project Manager",
+        "max_hours_per_month": 20,
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "S1",
+      "invoice_id": "INV-2026-061",
+      "difficulty": "easy",
+      "why_this_exists": "Tests deterministic rate checking, exact-value extraction, and evidence citation.",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "Senior Consultant — ERP implementation support",
+          "hours": 40,
+          "rate_cad": "175.00",
+          "amount_cad": "7000.00"
+        },
+        {
+          "line_id": "L2",
+          "description": "Project Manager — oversight",
+          "hours": 10,
+          "rate_cad": "135.00",
+          "amount_cad": "1350.00"
+        }
+      ],
+      "expected_findings": [
+        {
+          "finding_type": "RATE_MISMATCH",
+          "basis": "deterministic",
+          "scope": "line",
+          "invoice_line_id": "L1",
+          "expected_disposition": "AUTO_EXCEPTION",
+          "expected_action": "DRAFT_VENDOR_CLARIFICATION",
+          "confidence_expectation": "HIGH",
+          "evidence": [
+            {
+              "kind": "supporting_quote",
+              "document_id": "MSA-2026-014",
+              "section": "4.1",
+              "page": 2,
+              "quote": "Senior Consultant services shall be billed at CAD $150.00 per hour."
+            },
+            {
+              "kind": "invoice_line",
+              "document_id": "INV-2026-061",
+              "line_id": "L1"
+            }
+          ],
+          "expected_values": {
+            "billed_rate_cad": "175.00",
+            "authorized_rate_cad": "150.00"
+          }
+        }
+      ],
+      "expected_clean_line_ids": [
+        "L2"
+      ],
+      "expected_invoice_disposition": "EXCEPTIONS_FOUND",
+      "invoice_date": "2026-05-03",
+      "service_period_start": "2026-04-01",
+      "service_period_end": "2026-04-30",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "8350.00"
+    },
+    {
+      "scenario_id": "S2",
+      "invoice_id": "INV-2026-062",
+      "difficulty": "medium",
+      "why_this_exists": "Tests absence detection and restrained claim language via the absence-of-authorization evidence structure.",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "Architecture Workshop Facilitation",
+          "hours": 12,
+          "rate_cad": "150.00",
+          "amount_cad": "1800.00"
+        },
+        {
+          "line_id": "L2",
+          "description": "Consultant — data migration validation",
+          "hours": 30,
+          "rate_cad": "110.00",
+          "amount_cad": "3300.00"
+        }
+      ],
+      "expected_findings": [
+        {
+          "finding_type": "UNAUTHORIZED_SERVICE",
+          "basis": "absence",
+          "scope": "line",
+          "invoice_line_id": "L1",
+          "expected_disposition": "SEMANTIC_EXCEPTION",
+          "expected_action": "DRAFT_VENDOR_CLARIFICATION",
+          "confidence_expectation": "MEDIUM",
+          "evidence": [
+            {
+              "kind": "absence_of_authorization",
+              "searched": [
+                {
+                  "document_id": "SOW-2026-03",
+                  "sections": [
+                    "2",
+                    "3"
+                  ]
+                },
+                {
+                  "document_id": "MSA-2026-014",
+                  "sections": [
+                    "2.1"
+                  ]
+                }
+              ],
+              "quotes": [
+                {
+                  "document_id": "SOW-2026-03",
+                  "section": "2",
+                  "page": 1,
+                  "quote": "Northbridge shall provide implementation support for Maplecore's ERP rollout, data migration validation, and training documentation."
+                },
+                {
+                  "document_id": "MSA-2026-014",
+                  "section": "2.1",
+                  "page": 1,
+                  "quote": "Northbridge shall perform only those services described in an executed Statement of Work under this Agreement."
+                }
+              ],
+              "statement": "No authorization matching this line item was found in the searched documents."
+            },
+            {
+              "kind": "invoice_line",
+              "document_id": "INV-2026-062",
+              "line_id": "L1"
+            }
+          ]
+        }
+      ],
+      "expected_clean_line_ids": [
+        "L2"
+      ],
+      "expected_invoice_disposition": "EXCEPTIONS_FOUND",
+      "invoice_date": "2026-06-03",
+      "service_period_start": "2026-05-01",
+      "service_period_end": "2026-05-31",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "5100.00"
+    },
+    {
+      "scenario_id": "S3",
+      "invoice_id": "INV-2026-063",
+      "difficulty": "medium",
+      "why_this_exists": "Tests semantic equivalence recognition without producing a false positive (precision guard).",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "Sr. Consulting Services — ERP implementation",
+          "hours": 60,
+          "rate_cad": "150.00",
+          "amount_cad": "9000.00"
+        },
+        {
+          "line_id": "L2",
+          "description": "Project Manager — oversight",
+          "hours": 8,
+          "rate_cad": "135.00",
+          "amount_cad": "1080.00"
+        }
+      ],
+      "expected_findings": [],
+      "expected_clean_line_ids": [
+        "L1",
+        "L2"
+      ],
+      "expected_invoice_disposition": "CLEAN",
+      "trap": "false_positive_guard",
+      "notes": "Sr. Consulting Services must semantically match the Senior Consultant role. Any finding here is a false positive.",
+      "invoice_date": "2026-07-03",
+      "service_period_start": "2026-06-01",
+      "service_period_end": "2026-06-30",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "10080.00"
+    },
+    {
+      "scenario_id": "S4",
+      "invoice_id": "INV-2026-064",
+      "difficulty": "hard",
+      "why_this_exists": "Tests abstention when a plausibly related service description cannot be conclusively mapped to or excluded from the authorized scope.",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "ERP Rollout Advisory Support",
+          "hours": 25,
+          "rate_cad": "150.00",
+          "amount_cad": "3750.00"
+        }
+      ],
+      "expected_findings": [
+        {
+          "finding_type": "SCOPE_AMBIGUITY",
+          "basis": "semantic",
+          "scope": "line",
+          "invoice_line_id": "L1",
+          "expected_disposition": "ESCALATE",
+          "expected_action": "HUMAN_REVIEW",
+          "confidence_expectation": "ABSTAIN",
+          "evidence": [
+            {
+              "kind": "supporting_quote",
+              "document_id": "SOW-2026-03",
+              "section": "2",
+              "page": 1,
+              "quote": "Northbridge shall provide implementation support for Maplecore's ERP rollout, data migration validation, and training documentation."
+            },
+            {
+              "kind": "invoice_line",
+              "document_id": "INV-2026-064",
+              "line_id": "L1"
+            }
+          ],
+          "scoring_note": "ESCALATE is the only correct disposition. AUTO_EXCEPTION or SEMANTIC_EXCEPTION here = incorrect_confident. CLEAN here = miss.",
+          "rationale": "The description is plausibly related to the authorized scope but insufficiently specified: it may overlap with implementation support or may represent advisory services outside the SOW. The supplied documents are insufficient to resolve the distinction; escalation is the only defensible disposition."
+        }
+      ],
+      "expected_clean_line_ids": [],
+      "expected_invoice_disposition": "ESCALATION_REQUIRED",
+      "invoice_date": "2026-08-03",
+      "service_period_start": "2026-07-01",
+      "service_period_end": "2026-07-31",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "3750.00"
+    },
+    {
+      "scenario_id": "S5",
+      "invoice_id": "INV-2026-065",
+      "difficulty": "medium",
+      "why_this_exists": "Tests aggregate cross-line logic that defeats naive per-line validation.",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "Senior Consultant — ERP implementation support",
+          "hours": 95,
+          "rate_cad": "150.00",
+          "amount_cad": "14250.00"
+        },
+        {
+          "line_id": "L2",
+          "description": "Consultant — data migration validation",
+          "hours": 80,
+          "rate_cad": "110.00",
+          "amount_cad": "8800.00"
+        },
+        {
+          "line_id": "L3",
+          "description": "Project Manager — oversight",
+          "hours": 20,
+          "rate_cad": "135.00",
+          "amount_cad": "2700.00"
+        }
+      ],
+      "expected_findings": [
+        {
+          "finding_type": "AGGREGATE_CAP_EXCEEDED",
+          "basis": "deterministic",
+          "scope": "invoice",
+          "invoice_line_id": null,
+          "expected_disposition": "AUTO_EXCEPTION",
+          "expected_action": "DRAFT_VENDOR_CLARIFICATION",
+          "confidence_expectation": "HIGH",
+          "evidence": [
+            {
+              "kind": "supporting_quote",
+              "document_id": "MSA-2026-014",
+              "section": "4.3",
+              "page": 2,
+              "quote": "Aggregate fees invoiced in any calendar month shall not exceed CAD $25,000.00."
+            },
+            {
+              "kind": "computed_total",
+              "document_id": "INV-2026-065",
+              "value_cad": "25750.00"
+            }
+          ],
+          "expected_values": {
+            "invoice_total_cad": "25750.00",
+            "cap_cad": "25000.00",
+            "excess_cad": "750.00"
+          }
+        }
+      ],
+      "expected_clean_line_ids": [
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "expected_invoice_disposition": "EXCEPTIONS_FOUND",
+      "notes": "Every line is individually valid; only the aggregate check may fire.",
+      "invoice_date": "2026-09-03",
+      "service_period_start": "2026-08-01",
+      "service_period_end": "2026-08-31",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "25750.00"
+    },
+    {
+      "scenario_id": "S6",
+      "invoice_id": "INV-2026-066",
+      "difficulty": "easy",
+      "why_this_exists": "Measures the false-positive rate on a fully clean invoice; required for a real precision number.",
+      "invoice_lines": [
+        {
+          "line_id": "L1",
+          "description": "Senior Consultant — ERP implementation support",
+          "hours": 50,
+          "rate_cad": "150.00",
+          "amount_cad": "7500.00"
+        },
+        {
+          "line_id": "L2",
+          "description": "Project Manager — oversight",
+          "hours": 10,
+          "rate_cad": "135.00",
+          "amount_cad": "1350.00"
+        }
+      ],
+      "expected_findings": [],
+      "expected_clean_line_ids": [
+        "L1",
+        "L2"
+      ],
+      "expected_invoice_disposition": "CLEAN",
+      "trap": "false_positive_guard",
+      "invoice_date": "2026-10-03",
+      "service_period_start": "2026-09-01",
+      "service_period_end": "2026-09-30",
+      "sow_reference": "SOW-2026-03",
+      "currency": "CAD",
+      "invoice_total_cad": "8850.00"
+    }
+  ],
+  "extraction_manifest": [
+    {
+      "document_id": "MSA-2026-014",
+      "field": "client_party",
+      "expected": "Maplecore Logistics Inc.",
+      "normalization": "whitespace_collapse"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "vendor_party",
+      "expected": "Northbridge Consulting Ltd.",
+      "normalization": "whitespace_collapse"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "effective_from",
+      "expected": "2026-03-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "effective_to",
+      "expected": "2027-02-28",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "rate[SENIOR_CONSULTANT]",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "rate[CONSULTANT]",
+      "expected": "110.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "rate[PROJECT_MANAGER]",
+      "expected": "135.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "MSA-2026-014",
+      "field": "monthly_cap_cad",
+      "expected": "25000.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "sow_id",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "period_from",
+      "expected": "2026-04-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "period_to",
+      "expected": "2026-09-30",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "hour_limit[SENIOR_CONSULTANT]",
+      "expected": 100,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "hour_limit[CONSULTANT]",
+      "expected": 80,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "hour_limit[PROJECT_MANAGER]",
+      "expected": 20,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "SOW-2026-03",
+      "field": "scope_text",
+      "expected": "Northbridge shall provide implementation support for Maplecore's ERP rollout, data migration validation, and training documentation.",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "invoice_id",
+      "expected": "INV-2026-061",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "invoice_date",
+      "expected": "2026-05-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "service_period_start",
+      "expected": "2026-04-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "service_period_end",
+      "expected": "2026-04-30",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "invoice_total_cad",
+      "expected": "8350.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L1].description",
+      "expected": "Senior Consultant — ERP implementation support",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L1].hours",
+      "expected": 40,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L1].rate_cad",
+      "expected": "175.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L1].amount_cad",
+      "expected": "7000.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L2].description",
+      "expected": "Project Manager — oversight",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L2].hours",
+      "expected": 10,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L2].rate_cad",
+      "expected": "135.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-061",
+      "field": "line[L2].amount_cad",
+      "expected": "1350.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "invoice_id",
+      "expected": "INV-2026-062",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "invoice_date",
+      "expected": "2026-06-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "service_period_start",
+      "expected": "2026-05-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "service_period_end",
+      "expected": "2026-05-31",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "invoice_total_cad",
+      "expected": "5100.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L1].description",
+      "expected": "Architecture Workshop Facilitation",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L1].hours",
+      "expected": 12,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L1].rate_cad",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L1].amount_cad",
+      "expected": "1800.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L2].description",
+      "expected": "Consultant — data migration validation",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L2].hours",
+      "expected": 30,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L2].rate_cad",
+      "expected": "110.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-062",
+      "field": "line[L2].amount_cad",
+      "expected": "3300.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "invoice_id",
+      "expected": "INV-2026-063",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "invoice_date",
+      "expected": "2026-07-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "service_period_start",
+      "expected": "2026-06-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "service_period_end",
+      "expected": "2026-06-30",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "invoice_total_cad",
+      "expected": "10080.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L1].description",
+      "expected": "Sr. Consulting Services — ERP implementation",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L1].hours",
+      "expected": 60,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L1].rate_cad",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L1].amount_cad",
+      "expected": "9000.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L2].description",
+      "expected": "Project Manager — oversight",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L2].hours",
+      "expected": 8,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L2].rate_cad",
+      "expected": "135.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-063",
+      "field": "line[L2].amount_cad",
+      "expected": "1080.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "invoice_id",
+      "expected": "INV-2026-064",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "invoice_date",
+      "expected": "2026-08-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "service_period_start",
+      "expected": "2026-07-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "service_period_end",
+      "expected": "2026-07-31",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "invoice_total_cad",
+      "expected": "3750.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "line[L1].description",
+      "expected": "ERP Rollout Advisory Support",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "line[L1].hours",
+      "expected": 25,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "line[L1].rate_cad",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-064",
+      "field": "line[L1].amount_cad",
+      "expected": "3750.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "invoice_id",
+      "expected": "INV-2026-065",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "invoice_date",
+      "expected": "2026-09-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "service_period_start",
+      "expected": "2026-08-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "service_period_end",
+      "expected": "2026-08-31",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "invoice_total_cad",
+      "expected": "25750.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L1].description",
+      "expected": "Senior Consultant — ERP implementation support",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L1].hours",
+      "expected": 95,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L1].rate_cad",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L1].amount_cad",
+      "expected": "14250.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L2].description",
+      "expected": "Consultant — data migration validation",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L2].hours",
+      "expected": 80,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L2].rate_cad",
+      "expected": "110.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L2].amount_cad",
+      "expected": "8800.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L3].description",
+      "expected": "Project Manager — oversight",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L3].hours",
+      "expected": 20,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L3].rate_cad",
+      "expected": "135.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-065",
+      "field": "line[L3].amount_cad",
+      "expected": "2700.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "invoice_id",
+      "expected": "INV-2026-066",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "invoice_date",
+      "expected": "2026-10-03",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "service_period_start",
+      "expected": "2026-09-01",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "service_period_end",
+      "expected": "2026-09-30",
+      "normalization": "iso_date"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "sow_reference",
+      "expected": "SOW-2026-03",
+      "normalization": "identifier_trim"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "currency",
+      "expected": "CAD",
+      "normalization": "iso_currency"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "invoice_total_cad",
+      "expected": "8850.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L1].description",
+      "expected": "Senior Consultant — ERP implementation support",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L1].hours",
+      "expected": 50,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L1].rate_cad",
+      "expected": "150.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L1].amount_cad",
+      "expected": "7500.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L2].description",
+      "expected": "Project Manager — oversight",
+      "normalization": "whitespace_collapse_exact"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L2].hours",
+      "expected": 10,
+      "normalization": "integer"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L2].rate_cad",
+      "expected": "135.00",
+      "normalization": "decimal_2dp"
+    },
+    {
+      "document_id": "INV-2026-066",
+      "field": "line[L2].amount_cad",
+      "expected": "1350.00",
+      "normalization": "decimal_2dp"
+    }
+  ],
+  "extraction_field_count": 106,
+  "normalization_rules": {
+    "iso_date": "YYYY-MM-DD",
+    "decimal_2dp": "decimal string quantized to 0.01; parse with Decimal, never float",
+    "iso_currency": "ISO 4217 code",
+    "integer": "exact integer",
+    "identifier_trim": "trimmed, case-sensitive",
+    "whitespace_collapse": "internal whitespace collapsed, case-sensitive",
+    "whitespace_collapse_exact": "whitespace-collapsed exact match required",
+    "role_enum": {
+      "Senior Consultant": "SENIOR_CONSULTANT",
+      "Consultant": "CONSULTANT",
+      "Project Manager": "PROJECT_MANAGER"
+    },
+    "semantic_equivalence_note": "Semantic equivalence of service descriptions is NOT an extraction metric; it is tested behaviorally by S2 (absence), S3 (equivalence without false positive), and S4 (ambiguity escalation)."
+  },
+  "state": "PREREGISTERED (effective at initial repo commit; any subsequent edit reverts to DRAFT)",
+  "lifecycle": "DRAFT -> PREREGISTERED (at initial repo commit, before implementation) -> FROZEN (after PDF generation and rendered-page verification)"
+}
