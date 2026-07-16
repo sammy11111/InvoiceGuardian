@@ -42,11 +42,15 @@ def _msa() -> ContractTerms:
             RateCardEntry(
                 role=ServiceRole.SENIOR_CONSULTANT,
                 rate_cad_per_hour=Decimal("150.00"),
+                quote="Senior Consultant services shall be billed at CAD $150.00 per hour.",
                 source=SourceRef(document_id="MSA-2026-014", section="4.1", page=2),
             ),
         ],
         monthly_cap=MonthlyCap(
             value_cad=Decimal("25000.00"),
+            quote=(
+                "Aggregate fees invoiced in any calendar month shall not exceed CAD $25,000.00."
+            ),
             source=SourceRef(document_id="MSA-2026-014", section="4.3", page=2),
         ),
         authorization_principle=ScopeClause(

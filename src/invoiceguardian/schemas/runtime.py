@@ -112,11 +112,13 @@ class SourceRef(_Model):
 class RateCardEntry(_Model):
     role: ServiceRole
     rate_cad_per_hour: Decimal
+    quote: str
     source: SourceRef
 
 
 class MonthlyCap(_Model):
     value_cad: Decimal
+    quote: str
     source: SourceRef
 
 
