@@ -245,7 +245,9 @@ class ModelConfig(_Model):
 class ModelCallLogEntry(_Model):
     operation: str
     schema_valid_first_pass: bool
-    retried: bool
+    # The client structurally enforces one retry maximum (SCORING.md); this
+    # records the actual count (0 or 1) for bookkeeping fidelity.
+    retry_count: int
     schema_valid_final: bool
     latency_ms: float
     input_tokens: int
@@ -293,4 +295,5 @@ class MetricSummary(_Model):
     normalized_latency: float | None
     weighted_score: float | None
     hard_gates: HardGateResults
+    value_accuracy: float  # observational: matched findings' computed_values vs expected_values
     replicate_range: dict[str, list[float]] | None = None

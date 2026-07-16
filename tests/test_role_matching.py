@@ -26,3 +26,15 @@ def test_match_role_exact_resolves_known_role_prefixes(description, expected_rol
 )
 def test_match_role_exact_leaves_non_exact_descriptions_unresolved(description) -> None:
     assert match_role_exact(description) is None
+
+
+def test_role_match_is_prefix_anchored_not_a_substring_search() -> None:
+    """A role name appearing mid-description must NOT resolve — otherwise the
+    deterministic check would silently claim jurisdiction over lines the
+    semantic step is meant to judge."""
+    assert match_role_exact("Advisory support delivered by a Senior Consultant") is None
+    assert match_role_exact("Work overseen by the Project Manager") is None
+
+
+def test_role_match_is_case_sensitive() -> None:
+    assert match_role_exact("senior consultant — erp work") is None

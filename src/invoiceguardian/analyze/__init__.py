@@ -41,10 +41,31 @@ DATASET_VERSION = "v1.3-2026-07-15"
 ANSWER_KEY_SCHEMA_VERSION = "1.2"
 
 
-def _extracted_fact_records(
-    contract: ContractTerms, sow: StatementOfWork, invoice: Invoice
-) -> list[ExtractedFactRecord]:
+def _contract_fact_records(contract: ContractTerms) -> list[ExtractedFactRecord]:
+    """Every MSA extraction field named exactly as in answer_keys.json's
+    manifest, so the evaluator can score extraction accuracy field-by-field."""
     records = [
+        ExtractedFactRecord(
+            document_id=contract.document_id, field="client_party", value=contract.client_party
+        ),
+        ExtractedFactRecord(
+            document_id=contract.document_id, field="vendor_party", value=contract.vendor_party
+        ),
+        ExtractedFactRecord(
+            document_id=contract.document_id,
+            field="effective_from",
+            value=contract.effective_from.isoformat(),
+        ),
+        ExtractedFactRecord(
+            document_id=contract.document_id,
+            field="effective_to",
+            value=contract.effective_to.isoformat(),
+        ),
+        ExtractedFactRecord(
+            document_id=contract.document_id, field="currency", value=contract.currency
+        ),
+    ]
+    records.extend(
         ExtractedFactRecord(
             document_id=contract.document_id,
             field=f"rate[{entry.role.value}]",
@@ -52,7 +73,7 @@ def _extracted_fact_records(
             source=entry.source,
         )
         for entry in contract.rate_card
-    ]
+    )
     records.append(
         ExtractedFactRecord(
             document_id=contract.document_id,
@@ -61,14 +82,19 @@ def _extracted_fact_records(
             source=contract.monthly_cap.source,
         )
     )
-    records.append(
+    return records
+
+
+def _sow_fact_records(sow: StatementOfWork) -> list[ExtractedFactRecord]:
+    records = [
+        ExtractedFactRecord(document_id=sow.document_id, field="sow_id", value=sow.document_id),
         ExtractedFactRecord(
-            document_id=sow.document_id,
-            field="scope_text",
-            value=sow.scope.text,
-            source=sow.scope.source,
-        )
-    )
+            document_id=sow.document_id, field="period_from", value=sow.period_from.isoformat()
+        ),
+        ExtractedFactRecord(
+            document_id=sow.document_id, field="period_to", value=sow.period_to.isoformat()
+        ),
+    ]
     records.extend(
         ExtractedFactRecord(
             document_id=sow.document_id,
@@ -78,22 +104,74 @@ def _extracted_fact_records(
         )
         for entry in sow.monthly_hour_limits
     )
+    records.append(
+        ExtractedFactRecord(
+            document_id=sow.document_id,
+            field="scope_text",
+            value=sow.scope.text,
+            source=sow.scope.source,
+        )
+    )
+    return records
+
+
+def _invoice_fact_records(invoice: Invoice) -> list[ExtractedFactRecord]:
+    doc = invoice.invoice_id
+    records = [
+        ExtractedFactRecord(document_id=doc, field="invoice_id", value=invoice.invoice_id),
+        ExtractedFactRecord(
+            document_id=doc, field="invoice_date", value=invoice.invoice_date.isoformat()
+        ),
+        ExtractedFactRecord(
+            document_id=doc,
+            field="service_period_start",
+            value=invoice.service_period_start.isoformat(),
+        ),
+        ExtractedFactRecord(
+            document_id=doc,
+            field="service_period_end",
+            value=invoice.service_period_end.isoformat(),
+        ),
+        ExtractedFactRecord(document_id=doc, field="sow_reference", value=invoice.sow_reference),
+        ExtractedFactRecord(document_id=doc, field="currency", value=invoice.currency),
+        ExtractedFactRecord(
+            document_id=doc, field="invoice_total_cad", value=str(invoice.total_cad)
+        ),
+    ]
     for line in invoice.lines:
         records.append(
             ExtractedFactRecord(
-                document_id=invoice.invoice_id,
-                field=f"line[{line.line_id}].description",
-                value=line.description,
+                document_id=doc, field=f"line[{line.line_id}].description", value=line.description
             )
         )
         records.append(
             ExtractedFactRecord(
-                document_id=invoice.invoice_id,
-                field=f"line[{line.line_id}].rate_cad",
-                value=str(line.rate_cad),
+                document_id=doc, field=f"line[{line.line_id}].hours", value=str(line.hours)
+            )
+        )
+        records.append(
+            ExtractedFactRecord(
+                document_id=doc, field=f"line[{line.line_id}].rate_cad", value=str(line.rate_cad)
+            )
+        )
+        records.append(
+            ExtractedFactRecord(
+                document_id=doc,
+                field=f"line[{line.line_id}].amount_cad",
+                value=str(line.amount_cad),
             )
         )
     return records
+
+
+def _extracted_fact_records(
+    contract: ContractTerms, sow: StatementOfWork, invoice: Invoice
+) -> list[ExtractedFactRecord]:
+    return [
+        *_contract_fact_records(contract),
+        *_sow_fact_records(sow),
+        *_invoice_fact_records(invoice),
+    ]
 
 
 def _draft_summary(invoice_id: str, finding_count: int) -> str:

@@ -64,6 +64,7 @@ class ToolCallResponse:
 
 def _call_tool(
     *,
+    client: httpx.Client,
     model: str,
     system: str,
     messages: list[dict[str, Any]],
@@ -73,7 +74,7 @@ def _call_tool(
     max_tokens: int,
     timeout: float,
 ) -> ToolCallResponse:
-    response = httpx.post(
+    response = client.post(
         ANTHROPIC_API_URL,
         json={
             "model": model,
@@ -128,48 +129,22 @@ def call_tool_validated[T: BaseModel](
     raw_model: type[T],
     max_tokens: int = 4096,
     timeout: float = 90.0,
+    transport: httpx.BaseTransport | None = None,
 ) -> tuple[T, bool, int, int]:
     """Calls `tool_name`, validates the response against `raw_model`, and
     retries once (with a repair message) on validation failure.
 
     Returns (validated_result, retried, total_input_tokens, total_output_tokens).
     Raises SchemaValidationFailure if the retry also fails validation.
+
+    `transport` injects an httpx transport (e.g. httpx.MockTransport in
+    tests); production callers leave it None for the default network transport.
     """
     messages: list[dict[str, Any]] = [{"role": "user", "content": user_content}]
-    first = _call_tool(
-        model=model,
-        system=system,
-        messages=messages,
-        tool_name=tool_name,
-        tool_description=tool_description,
-        input_schema=input_schema,
-        max_tokens=max_tokens,
-        timeout=timeout,
-    )
+    client = httpx.Client(transport=transport) if transport is not None else httpx.Client()
     try:
-        return (
-            raw_model.model_validate(first.tool_input),
-            False,
-            first.input_tokens,
-            first.output_tokens,
-        )
-    except ValidationError as first_error:
-        messages = [
-            *messages,
-            {"role": "assistant", "content": first.raw_content},
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "tool_result",
-                        "tool_use_id": first.tool_use_id,
-                        "is_error": True,
-                        "content": _REPAIR_MESSAGE.format(error=str(first_error)),
-                    }
-                ],
-            },
-        ]
-        retry = _call_tool(
+        first = _call_tool(
+            client=client,
             model=model,
             system=system,
             messages=messages,
@@ -180,12 +155,48 @@ def call_tool_validated[T: BaseModel](
             timeout=timeout,
         )
         try:
-            validated = raw_model.model_validate(retry.tool_input)
-        except ValidationError as retry_error:
-            raise SchemaValidationFailure(
-                f"{tool_name} failed schema validation on the initial call and the "
-                f"one allowed retry. Retry error: {retry_error}"
-            ) from retry_error
-        total_input = first.input_tokens + retry.input_tokens
-        total_output = first.output_tokens + retry.output_tokens
-        return validated, True, total_input, total_output
+            return (
+                raw_model.model_validate(first.tool_input),
+                False,
+                first.input_tokens,
+                first.output_tokens,
+            )
+        except ValidationError as first_error:
+            messages = [
+                *messages,
+                {"role": "assistant", "content": first.raw_content},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": first.tool_use_id,
+                            "is_error": True,
+                            "content": _REPAIR_MESSAGE.format(error=str(first_error)),
+                        }
+                    ],
+                },
+            ]
+            retry = _call_tool(
+                client=client,
+                model=model,
+                system=system,
+                messages=messages,
+                tool_name=tool_name,
+                tool_description=tool_description,
+                input_schema=input_schema,
+                max_tokens=max_tokens,
+                timeout=timeout,
+            )
+            try:
+                validated = raw_model.model_validate(retry.tool_input)
+            except ValidationError as retry_error:
+                raise SchemaValidationFailure(
+                    f"{tool_name} failed schema validation on the initial call and the "
+                    f"one allowed retry. Retry error: {retry_error}"
+                ) from retry_error
+            total_input = first.input_tokens + retry.input_tokens
+            total_output = first.output_tokens + retry.output_tokens
+            return validated, True, total_input, total_output
+    finally:
+        client.close()
