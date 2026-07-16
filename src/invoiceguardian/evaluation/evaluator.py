@@ -117,7 +117,9 @@ def _decimal_equal(a: str | Decimal, b: str | Decimal) -> bool:
     try:
         cents = Decimal("0.01")
         return Decimal(a).quantize(cents) == Decimal(b).quantize(cents)
-    except InvalidOperation:
+    except InvalidOperation:  # pragma: no cover - defensive: inputs are always well-formed Decimals
+        # Only reachable if a computed/expected value were a malformed decimal
+        # string; feeds observational value accuracy only, never a hard gate.
         return False
 
 

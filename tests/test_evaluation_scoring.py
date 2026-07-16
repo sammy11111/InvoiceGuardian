@@ -61,6 +61,21 @@ def test_perfect_arm_weighted_score_is_one_and_gates_pass(dataset) -> None:
     assert summary.abstention_correctness == "correct"
 
 
+def test_zero_prediction_convention_precision_is_zero_not_undefined(dataset) -> None:
+    """SCORING.md: an arm reporting zero exceptions where the dataset expects
+    some scores detection precision 0 (not 0/0). Every scenario present but
+    with no findings -> no predictions, planted exceptions all become FN."""
+    results = [fx.build_perfect_result(dataset, s, findings=[]) for s in dataset.scenarios]
+    ev = evaluate_run(dataset, fx.build_run(dataset, results=results))
+    assert ev.detection_true_positives == 0
+    assert ev.detection_false_positives == 0
+    assert ev.planted_exceptions == 3
+    assert ev.detection_precision == 0.0
+    assert ev.detection_recall == 0.0
+    # Disposition accuracy is vacuously 1.0 when nothing matched (observational).
+    assert ev.disposition_accuracy == 1.0
+
+
 # --- Per-scenario: each planted exception and each clean case ---------------
 
 
@@ -171,6 +186,23 @@ def test_extraction_accuracy_penalizes_a_single_wrong_field(dataset) -> None:
 
 
 # --- Latency normalization across arms --------------------------------------
+
+
+def test_arm_without_latency_data_gets_full_latency_credit_dev_only(dataset) -> None:
+    """DEV-ONLY path (docstring note 5): a run carrying no per-invoice latency
+    (e.g. assembled before step-9 wires latency capture) normalizes to None
+    and receives full latency credit in the weighted score rather than
+    crashing. A formal benchmark run must carry latency."""
+    results = [fx.build_perfect_result(dataset, s) for s in dataset.scenarios]
+    no_latency_log = fx.build_model_call_log(
+        [s.invoice_id for s in dataset.scenarios], latency_ms=0.0
+    )
+    run = fx.build_run(dataset, results=results, model_call_log=no_latency_log)
+    summary = summarize_arm(dataset, "no-latency", [run])
+    assert summary.normalized_latency is None
+    assert summary.hard_gates.passed is True
+    # Full latency credit -> the perfect arm still scores 1.0 overall.
+    assert summary.weighted_score == pytest.approx(1.0)
 
 
 def test_normalized_latency_favors_the_faster_arm(dataset) -> None:

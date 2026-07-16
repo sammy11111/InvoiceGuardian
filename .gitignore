@@ -8,3 +8,6 @@ venv/
 .ruff_cache/
 .pyright/
 /dataset/
+.coverage
+.coverage.*
+htmlcov/

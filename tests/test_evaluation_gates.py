@@ -51,6 +51,31 @@ def _rate_finding(evidence) -> ExceptionFinding:
     )
 
 
+def test_fabricated_quote_on_a_false_positive_finding_fails_gate_1(dataset) -> None:
+    """A fabricated citation on an UNMATCHED (false-positive) finding must
+    still fail gate 1 — "zero fabricated citations anywhere". This exercises
+    the false-positive branch of the unsupported check, distinct from the
+    matched-finding branch."""
+    s6 = next(s for s in dataset.scenarios if s.scenario_id == "S6")  # clean: any finding is an FP
+    fabricated_fp = _rate_finding(
+        [
+            SupportingQuoteEvidence(
+                document_id="MSA-2026-014",
+                section="4.1",
+                page=2,
+                quote="Senior Consultant services shall be billed at CAD $999.00 per hour.",
+            ),
+            InvoiceLineEvidence(document_id=s6.invoice_id, line_id="L1"),
+        ]
+    )
+    result = fx.build_perfect_result(dataset, s6, findings=[fabricated_fp])
+    ev = evaluate_run(dataset, fx.build_run(dataset, results=[result]))
+    assert ev.detection_false_positives == 1  # unmatched on a clean scenario
+    assert ev.unsupported_finding_count == 1  # ... and unsupported via fabrication
+    assert ev.hard_gates().zero_unsupported_findings is False
+    assert ev.hard_gates().zero_false_positives is False
+
+
 # --- Gate 4: false positives -------------------------------------------------
 
 
