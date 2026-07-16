@@ -1,6 +1,6 @@
 # InvoiceGuardian — Scenario Specification v1.4
 Dataset version: `v1.3-2026-07-15` (unchanged since v1.3; this document revision aligns metric definitions only) · Answer-key schema: `1.2` · Prompt versions: recorded per run (see SCORING.md) · Owner: Sammy Ibrahim
-Lifecycle: **DRAFT** → **PREREGISTERED** (state written into the artifacts and committed before implementation) → **FROZEN** (after PDF generation and rendered-page-reference verification, committed again). Current state: **PREREGISTERED, effective at initial repo commit**; any subsequent edit reverts to DRAFT. Formal benchmark runs occur only on the FROZEN dataset; earlier development smoke calls are never presented as benchmark runs.
+Lifecycle: **DRAFT** → **PREREGISTERED** (state written into the artifacts and committed before implementation) → **FROZEN** (after PDF generation and rendered-page-reference verification, committed again). Current state: **FROZEN, effective 2026-07-15**; PDF generation and rendered-page verification complete, §3.4 assumption confirmed unchanged. Formal benchmark runs occur only on the FROZEN dataset; earlier development smoke calls are never presented as benchmark runs.
 
 **Product name (locked):** InvoiceGuardian — Service Invoice Exception Review.
 **Purpose of this document:** the single source of truth for the synthetic evaluation dataset. Ground truth is defined here FIRST; documents are generated FROM this spec. The evaluator scores against the answer keys in `answer_keys.json`, which are derived line-for-line from this file.

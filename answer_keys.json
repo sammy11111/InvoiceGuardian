@@ -1,7 +1,7 @@
 {
   "schema_version": "1.2",
   "dataset_version": "v1.3-2026-07-15",
-  "note": "Page numbers follow scenario-spec.md 3.4 rendering assumption; re-record from rendered PDFs before FROZEN. Quotes are canonical and must match spec section 3 verbatim. All monetary values are decimal strings; parse as Decimal. confidence_expectation is non-scored metadata in v1 (deterministic=HIGH, semantic=MEDIUM, escalate=ABSTAIN). Each scenario is analyzed as a single-invoice run against the cached MSA/SOW extraction; one invoice per calendar month keeps the monthly-cap ground truth unambiguous under both invoice-date and service-period readings of MSA 4.3.",
+  "note": "Page numbers were verified against rendered PDFs and match the scenario-spec.md 3.4 rendering assumption exactly (MSA 4.1/4.3 -> page 2, SOW 3 -> page 1); no source.page values needed editing. Quotes are canonical and must match spec section 3 verbatim. All monetary values are decimal strings; parse as Decimal. confidence_expectation is non-scored metadata in v1 (deterministic=HIGH, semantic=MEDIUM, escalate=ABSTAIN). Each scenario is analyzed as a single-invoice run against the cached MSA/SOW extraction; one invoice per calendar month keeps the monthly-cap ground truth unambiguous under both invoice-date and service-period readings of MSA 4.3.",
   "documents": {
     "MSA-2026-014": {
       "type": "contract",
@@ -1079,6 +1079,6 @@
     },
     "semantic_equivalence_note": "Semantic equivalence of service descriptions is NOT an extraction metric; it is tested behaviorally by S2 (absence), S3 (equivalence without false positive), and S4 (ambiguity escalation)."
   },
-  "state": "PREREGISTERED (effective at initial repo commit; any subsequent edit reverts to DRAFT)",
+  "state": "FROZEN (2026-07-15; PDF generation and rendered-page verification complete, §3.4 assumption confirmed unchanged)",
   "lifecycle": "DRAFT -> PREREGISTERED (at initial repo commit, before implementation) -> FROZEN (after PDF generation and rendered-page verification)"
 }
