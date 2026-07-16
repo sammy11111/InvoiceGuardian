@@ -214,6 +214,44 @@ def build_model_call_log(
     return ops
 
 
+def build_model_call_log_from_results(
+    results: list[AnalysisResult],
+) -> list[ModelCallLogEntry]:
+    """Derive a run's required-operation log from real AnalysisResults' traces.
+
+    Shared-document extractions (MSA, SOW) repeat across each invoice's trace
+    and are deduped to one entry each; invoice extractions and semantic
+    comparisons carry per-invoice / per-line operation identities. Latency and
+    tokens are left at zero — capturing those into the log is step-9 wiring.
+    """
+    entries: list[ModelCallLogEntry] = []
+    seen_shared: set[str] = set()
+    for result in results:
+        for call in result.trace.model_calls:
+            purpose = call.purpose
+            if purpose in ("MSA_EXTRACTION", "SOW_EXTRACTION"):
+                if purpose in seen_shared:
+                    continue
+                seen_shared.add(purpose)
+                operation = purpose
+            elif purpose == "INVOICE_EXTRACTION":
+                operation = f"INVOICE_EXTRACTION:{result.invoice_id}"
+            else:  # already a distinct identity, e.g. SEMANTIC_COMPARISON:<inv>-<line>
+                operation = purpose
+            entries.append(
+                ModelCallLogEntry(
+                    operation=operation,
+                    schema_valid_first_pass=call.schema_valid,
+                    retry_count=1 if call.retried else 0,
+                    schema_valid_final=call.schema_valid,
+                    latency_ms=0.0,
+                    input_tokens=0,
+                    output_tokens=0,
+                )
+            )
+    return entries
+
+
 def build_run(
     dataset: EvaluationDataset,
     *,

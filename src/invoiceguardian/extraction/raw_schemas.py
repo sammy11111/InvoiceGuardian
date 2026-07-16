@@ -89,3 +89,13 @@ class RawInvoiceExtraction(_Model):
     currency: str
     lines: list[RawInvoiceLine]
     total_cad: str
+
+
+class RawSemanticClassification(_Model):
+    """The bounded output of the semantic-comparison operation: a three-way
+    classification, plus (for EQUIVALENT only) the authorized item the line
+    maps to. Deliberately carries no free-text reasoning — the operational
+    trace is a render of pipeline state, never chain-of-thought (CLAUDE.md)."""
+
+    classification: Literal["EQUIVALENT", "NOT_AUTHORIZED", "AMBIGUOUS"]
+    matched_authorized_item: str | None = None

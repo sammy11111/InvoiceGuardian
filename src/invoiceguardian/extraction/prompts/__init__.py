@@ -22,3 +22,6 @@ SOW_EXTRACTION_SYSTEM_PROMPT = (_DIR / f"sow_extraction_{PROMPT_VERSION}.md").re
 INVOICE_EXTRACTION_SYSTEM_PROMPT = (_DIR / f"invoice_extraction_{PROMPT_VERSION}.md").read_text(
     encoding="utf-8"
 )
+SEMANTIC_COMPARISON_SYSTEM_PROMPT = (_DIR / f"semantic_comparison_{PROMPT_VERSION}.md").read_text(
+    encoding="utf-8"
+)
