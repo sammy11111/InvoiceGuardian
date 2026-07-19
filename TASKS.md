@@ -6,6 +6,8 @@
 
 - **Write-up's engineering-integrity angle:** the evaluator (the grader) was independently reviewed twice and both passes found real gaps — Codex caught 10 scoring/gate issues (S4 dual-disposition, missing-scenario-as-FN, etc.), a coverage check caught 2 untested live-logic paths (zero-prediction precision convention, gate-1 fabrication on false positives). The component that grades everything was gated harder than the rest, and it kept rewarding scrutiny.
 
+- **Demo snapshot:** S2 landed ESCALATE this run; S2 is inherently unstable (3/4 AMBIGUOUS vs 1/4 NOT_AUTHORIZED per step-6 testing) — this is a real captured output, not the only possible one.
+
 ### Kanz submission requirements (from the grading rubric)
 
 - Grader is an AI agent reading only: project story (problem / solution / how built / who benefits / future vision), resume PDF, demo video, hero image + 2 screenshots. It never reads the repo — all engineering rigor must be narrated in the story text and shown in the video.
