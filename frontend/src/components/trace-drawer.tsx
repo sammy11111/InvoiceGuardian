@@ -14,6 +14,16 @@ import { Separator } from "@/components/ui/separator";
 import type { ApprovalState, ScenarioDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/**
+ * Deterministic rate/cap checks genuinely pass or fail. The semantic
+ * comparison check isn't pass/fail in that sense — a non-EQUIVALENT outcome
+ * means the system caught something worth review, not that anything broke.
+ */
+function ruleOutcomeLabel(rule: { rule_name: string; passed: boolean }): string {
+  if (rule.passed) return "passed";
+  return rule.rule_name === "SEMANTIC_COMPARISON_CHECK" ? "flagged" : "failed";
+}
+
 function TraceSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
@@ -164,7 +174,7 @@ export function TraceDrawer({
                       rule.passed ? "text-status-clean" : "text-status-exception",
                     )}
                   >
-                    {rule.passed ? "passed" : "failed"}
+                    {ruleOutcomeLabel(rule)}
                   </span>
                 </li>
               ))}

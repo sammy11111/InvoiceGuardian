@@ -18,3 +18,10 @@
 - Resume must explicitly list the skills this project demonstrates (Python, FastAPI, Pydantic, prompt engineering, LLM evaluation design, agentic workflows) — skills score as Verified/Applied only if they appear in BOTH resume and project.
 - "Future vision" field = ROADMAP.md content.
 - Note: the rubric's required media list has no deck — reallocate any deck time to video + story text.
+
+### Employer challenge track
+
+- Confirmed (Day 1 keynote transcript, Kanz speaker, 11:45:21–11:45:36 GMT+3, July 15 2026): two employers submitted challenges to the hackathon. The top 10 submissions closest to each challenge get shown directly to that employer for an interview or conversation, separate from the general judging/prize track.
+- Assumed, not confirmed: the two employers are Sucafina and Booking.com — inferred from a garbled transcript line ("Sci-fi booking.com, some VCs, CME, Siren Analytics") cross-referenced against Kanz's public Success Stories page (TELUS, Sucafina, Booking.com, Alefb). Do not treat as fact.
+- **Open item, blocking:** actual challenge content for either company is unknown. Find the challenge brief (portal, Telegram, session chat, or a later day's recap/transcript) before finalizing the project story text (step 10) — it determines whether InvoiceGuardian is even a relevant match for either challenge.
+- Do not let this item slip to step 10 by default — it should resolve as soon as the brief surfaces, independent of build progress.
