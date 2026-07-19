@@ -1,5 +1,9 @@
 # TASKS
 
+## Step 9 — benchmark
+
+- S7/S8 dataset expansion: deferred, not declined. Must be decided before Phase A begins (SCORING.md step 9) — never after seeing benchmark results. If a free evening exists before Phase A starts, revisit; otherwise run Phase A on the six-scenario baseline with SCORING.md's own fallback framing ("a preliminary controlled comparison on the baseline evaluation set").
+
 ## Step 10 — write-up
 
 - **"One genuine failure analyzed" section (SCORING.md reporting commitment) = the S4 semantic-path divergence.** Under the frozen neutral classification prompt, claude-sonnet-5 stably collapses S4 ("ERP Rollout Advisory Support") to EQUIVALENT 4/4 → clean pass → abstention miss, hard gate 3 fails. Fable 5 adjudicated it: prompt is neutral, this is genuine model behavior, not tuned away. Secondary finding — S4's spec premise that escalation is the uniquely defensible disposition is overstated; conditional trigger for a reworded S4 in a future dataset version is if BOTH required arms (sonnet-5 + fable-5) fail S4 identically in Phase A. Full adjudication chain is in the InvoiceGuardian planning chat.
