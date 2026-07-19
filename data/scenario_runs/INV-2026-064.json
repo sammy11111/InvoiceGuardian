@@ -1,0 +1,266 @@
+{
+  "invoice_id": "INV-2026-064",
+  "disposition": "CLEAN",
+  "findings": [],
+  "clean_line_ids": [
+    "L1"
+  ],
+  "approval_state": "NO_ACTION_REQUIRED",
+  "drafted_action": null,
+  "trace": {
+    "invoice_id": "INV-2026-064",
+    "versions": {
+      "dataset_version": "v1.3-2026-07-15",
+      "schema_version": "1.2",
+      "prompt_version": "v1"
+    },
+    "input_document_ids": [
+      "MSA-2026-014",
+      "SOW-2026-03",
+      "INV-2026-064"
+    ],
+    "extracted_facts": [
+      {
+        "document_id": "MSA-2026-014",
+        "field": "client_party",
+        "value": "Maplecore Logistics Inc.",
+        "source": null
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "vendor_party",
+        "value": "Northbridge Consulting Ltd.",
+        "source": null
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "effective_from",
+        "value": "2026-03-01",
+        "source": null
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "effective_to",
+        "value": "2027-02-28",
+        "source": null
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "currency",
+        "value": "CAD",
+        "source": null
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "rate[SENIOR_CONSULTANT]",
+        "value": "150.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "rate[CONSULTANT]",
+        "value": "110.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "rate[PROJECT_MANAGER]",
+        "value": "135.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.1",
+          "page": 2
+        }
+      },
+      {
+        "document_id": "MSA-2026-014",
+        "field": "monthly_cap_cad",
+        "value": "25000.00",
+        "source": {
+          "document_id": "MSA-2026-014",
+          "section": "4.3",
+          "page": 2
+        }
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "sow_id",
+        "value": "SOW-2026-03",
+        "source": null
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "period_from",
+        "value": "2026-04-01",
+        "source": null
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "period_to",
+        "value": "2026-09-30",
+        "source": null
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "hour_limit[SENIOR_CONSULTANT]",
+        "value": "100",
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "hour_limit[CONSULTANT]",
+        "value": "80",
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "hour_limit[PROJECT_MANAGER]",
+        "value": "20",
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "3",
+          "page": 1
+        }
+      },
+      {
+        "document_id": "SOW-2026-03",
+        "field": "scope_text",
+        "value": "Northbridge shall provide implementation support for Maplecore's ERP rollout, data migration validation, and training documentation.",
+        "source": {
+          "document_id": "SOW-2026-03",
+          "section": "2",
+          "page": 1
+        }
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "invoice_id",
+        "value": "INV-2026-064",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "invoice_date",
+        "value": "2026-08-03",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "service_period_start",
+        "value": "2026-07-01",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "service_period_end",
+        "value": "2026-07-31",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "sow_reference",
+        "value": "SOW-2026-03",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "currency",
+        "value": "CAD",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "invoice_total_cad",
+        "value": "3750.00",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "line[L1].description",
+        "value": "ERP Rollout Advisory Support",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "line[L1].hours",
+        "value": "25",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "line[L1].rate_cad",
+        "value": "150.00",
+        "source": null
+      },
+      {
+        "document_id": "INV-2026-064",
+        "field": "line[L1].amount_cad",
+        "value": "3750.00",
+        "source": null
+      }
+    ],
+    "deterministic_rules": [
+      {
+        "rule_name": "AGGREGATE_CAP_CHECK",
+        "invoice_line_id": null,
+        "passed": true,
+        "detail": "invoice total 3750.00 <= cap 25000.00"
+      },
+      {
+        "rule_name": "SEMANTIC_COMPARISON_CHECK",
+        "invoice_line_id": "L1",
+        "passed": true,
+        "detail": "EQUIVALENT -> implementation support for Maplecore's ERP rollout"
+      }
+    ],
+    "model_calls": [
+      {
+        "model_id": "claude-sonnet-5",
+        "effort": null,
+        "purpose": "MSA_EXTRACTION",
+        "schema_valid": true,
+        "retried": false
+      },
+      {
+        "model_id": "claude-sonnet-5",
+        "effort": null,
+        "purpose": "SOW_EXTRACTION",
+        "schema_valid": true,
+        "retried": false
+      },
+      {
+        "model_id": "claude-sonnet-5",
+        "effort": null,
+        "purpose": "INVOICE_EXTRACTION",
+        "schema_valid": true,
+        "retried": false
+      },
+      {
+        "model_id": "claude-sonnet-5",
+        "effort": null,
+        "purpose": "SEMANTIC_COMPARISON:INV-2026-064-L1",
+        "schema_valid": true,
+        "retried": false
+      }
+    ],
+    "findings": [],
+    "disposition": "CLEAN",
+    "approval_state": "NO_ACTION_REQUIRED"
+  }
+}

@@ -1,0 +1,142 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* InvoiceGuardian semantic status tokens — three-way, deliberately
+     distinct even to a colorblind viewer (paired with icon + text, never
+     color alone). These are product taxonomy, not decoration. */
+  --color-status-clean: var(--status-clean);
+  --color-status-clean-foreground: var(--status-clean-foreground);
+  --color-status-clean-bg: var(--status-clean-bg);
+  --color-status-exception: var(--status-exception);
+  --color-status-exception-foreground: var(--status-exception-foreground);
+  --color-status-exception-bg: var(--status-exception-bg);
+  --color-status-escalation: var(--status-escalation);
+  --color-status-escalation-foreground: var(--status-escalation-foreground);
+  --color-status-escalation-bg: var(--status-escalation-bg);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Ink / paper / line — the ledger-and-exhibit chrome */
+  --ink: oklch(0.22 0.02 265);
+  --paper: oklch(0.975 0.006 85);
+  --paper-dim: oklch(0.955 0.008 85);
+  --line: oklch(0.85 0.012 85);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: oklch(1 0.002 85);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0.002 85);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-dim);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-dim);
+  --muted-foreground: oklch(0.46 0.02 265);
+  --accent: var(--paper-dim);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.55 0.19 25);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: oklch(0.55 0.05 265);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.5rem;
+  --sidebar: var(--ink);
+  --sidebar-foreground: var(--paper);
+  --sidebar-primary: var(--paper);
+  --sidebar-primary-foreground: var(--ink);
+  --sidebar-accent: oklch(0.28 0.02 265);
+  --sidebar-accent-foreground: var(--paper);
+  --sidebar-border: oklch(0.32 0.02 265);
+  --sidebar-ring: oklch(0.6 0.05 265);
+
+  /* Status taxonomy: clean (forest green) / exception (aged amber) /
+     escalation (deep violet) — chosen to read distinctly on camera and
+     stay distinct from each other at a glance, not just by hue name. */
+  --status-clean: oklch(0.42 0.09 155);
+  --status-clean-foreground: oklch(0.98 0.01 155);
+  --status-clean-bg: oklch(0.93 0.035 155);
+  --status-exception: oklch(0.48 0.13 55);
+  --status-exception-foreground: oklch(0.98 0.01 55);
+  --status-exception-bg: oklch(0.91 0.05 70);
+  --status-escalation: oklch(0.4 0.15 300);
+  --status-escalation-foreground: oklch(0.98 0.01 300);
+  --status-escalation-bg: oklch(0.91 0.045 300);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-mono-tight {
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+  }
+  .tabular-figures {
+    font-variant-numeric: tabular-nums;
+  }
+}

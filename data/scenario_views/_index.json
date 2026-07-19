@@ -1,0 +1,68 @@
+[
+  {
+    "invoice_id": "INV-2026-061",
+    "scenario_label": "S1",
+    "invoice_date": "2026-05-03",
+    "service_period_start": "2026-04-01",
+    "service_period_end": "2026-04-30",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "8350.00",
+    "disposition": "EXCEPTIONS_FOUND"
+  },
+  {
+    "invoice_id": "INV-2026-062",
+    "scenario_label": "S2",
+    "invoice_date": "2026-06-03",
+    "service_period_start": "2026-05-01",
+    "service_period_end": "2026-05-31",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "5100.00",
+    "disposition": "ESCALATION_REQUIRED"
+  },
+  {
+    "invoice_id": "INV-2026-063",
+    "scenario_label": "S3",
+    "invoice_date": "2026-07-03",
+    "service_period_start": "2026-06-01",
+    "service_period_end": "2026-06-30",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "10080.00",
+    "disposition": "CLEAN"
+  },
+  {
+    "invoice_id": "INV-2026-064",
+    "scenario_label": "S4",
+    "invoice_date": "2026-08-03",
+    "service_period_start": "2026-07-01",
+    "service_period_end": "2026-07-31",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "3750.00",
+    "disposition": "CLEAN"
+  },
+  {
+    "invoice_id": "INV-2026-065",
+    "scenario_label": "S5",
+    "invoice_date": "2026-09-03",
+    "service_period_start": "2026-08-01",
+    "service_period_end": "2026-08-31",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "25750.00",
+    "disposition": "EXCEPTIONS_FOUND"
+  },
+  {
+    "invoice_id": "INV-2026-066",
+    "scenario_label": "S6",
+    "invoice_date": "2026-10-03",
+    "service_period_start": "2026-09-01",
+    "service_period_end": "2026-09-30",
+    "sow_reference": "SOW-2026-03",
+    "currency": "CAD",
+    "invoice_total_cad": "8850.00",
+    "disposition": "CLEAN"
+  }
+]
