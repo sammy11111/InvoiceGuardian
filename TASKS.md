@@ -21,7 +21,7 @@
 
 ### Employer challenge track
 
-- Confirmed (Day 1 keynote transcript, Kanz speaker, 11:45:21–11:45:36 GMT+3, July 15 2026): two employers submitted challenges to the hackathon. The top 10 submissions closest to each challenge get shown directly to that employer for an interview or conversation, separate from the general judging/prize track.
-- Assumed, not confirmed: the two employers are Sucafina and Booking.com — inferred from a garbled transcript line ("Sci-fi booking.com, some VCs, CME, Siren Analytics") cross-referenced against Kanz's public Success Stories page (TELUS, Sucafina, Booking.com, Alefb). Do not treat as fact.
-- **Open item, blocking:** actual challenge content for either company is unknown. Find the challenge brief (portal, Telegram, session chat, or a later day's recap/transcript) before finalizing the project story text (step 10) — it determines whether InvoiceGuardian is even a relevant match for either challenge.
+- Confirmed (Day 1 transcript, ~11:04–11:05 GMT+3 session time, referencing the July 22 closing keynote): employers invited include booking.com (named directly in transcript), plus three other candidates the transcription garbled or left ambiguous — "Sci-fi" (possibly Sucafina), CME (possibly CME Group), and Siren Analytics — alongside unspecified VCs. Two of the named employers "sent us challenges"; the transcript does not specify which two.
+- Assumed, not confirmed: Sucafina as the second challenge-sender alongside booking.com — one plausible reading of "Sci-fi," not verified, and CME/Siren Analytics remain equally plausible alternatives.
+- **Open item, blocking:** which two companies actually sent challenges, and what either challenge asks for, is still unknown. Needed before finalizing step 10's story.
 - Do not let this item slip to step 10 by default — it should resolve as soon as the brief surfaces, independent of build progress.
