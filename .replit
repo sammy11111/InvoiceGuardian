@@ -1,0 +1,10 @@
+run = "bash -c 'pip install uv && uv sync --frozen && .venv/bin/uvicorn invoiceguardian.api.app:app --host 0.0.0.0 --port ${PORT:-8000}'"
+
+[deployment]
+build = "pip install uv && uv sync --frozen"
+run = ["bash", "-c", ".venv/bin/uvicorn invoiceguardian.api.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 8000
+externalPort = 80

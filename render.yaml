@@ -1,0 +1,8 @@
+services:
+  - name: invoiceguardian
+    type: web
+    runtime: python
+    buildCommand: pip install uv && uv sync --frozen
+    startCommand: .venv/bin/uvicorn invoiceguardian.api.app:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /health

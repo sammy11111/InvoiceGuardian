@@ -1,0 +1,6 @@
+[build]
+buildCommand = "pip install uv && uv sync --frozen"
+
+[deploy]
+startCommand = ".venv/bin/uvicorn invoiceguardian.api.app:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"

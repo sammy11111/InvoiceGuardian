@@ -21,6 +21,12 @@ def client() -> TestClient:
     return TestClient(app)
 
 
+def test_health_endpoint(client: TestClient) -> None:
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_list_scenarios_returns_all_six(client: TestClient) -> None:
     response = client.get("/api/scenarios")
     assert response.status_code == 200
