@@ -185,7 +185,11 @@ def _extracted_fact_records(
 
 
 def _run_semantic_path(
-    invoice: Invoice, contract: ContractTerms, sow: StatementOfWork, model: str
+    invoice: Invoice,
+    contract: ContractTerms,
+    sow: StatementOfWork,
+    model: str,
+    verbose: bool = False,
 ) -> tuple[list[ExceptionFinding], list[DeterministicRuleResult], list[ModelCallRecord]]:
     """Bounded semantic comparison runs on unresolved descriptions only —
     lines where exact-prefix role matching fell through (CLAUDE.md). One
@@ -197,6 +201,8 @@ def _run_semantic_path(
     for line in invoice.lines:
         if match_role_exact(line.description) is not None:
             continue  # resolved deterministically; never reaches the model
+        if verbose:
+            print(f"Running semantic comparison on line {line.line_id}...")
         classification, call = classify_line(
             line.description,
             contract,
@@ -212,6 +218,8 @@ def _run_semantic_path(
         rule_results.append(rule)
         if finding is not None:
             findings.append(finding)
+            if verbose:
+                print(f"Finding: {finding.finding_type.value} {line.line_id}")
 
     return findings, rule_results, model_calls
 
@@ -261,25 +269,43 @@ def run_analysis(
     invoice_id: str,
     pdf_dir: Path = DEFAULT_PDF_DIR,
     model: str = DEFAULT_MODEL,
+    verbose: bool = False,
 ) -> AnalysisResult:
     required = {f"{MSA_DOCUMENT_ID}.pdf", f"{SOW_DOCUMENT_ID}.pdf", f"{invoice_id}.pdf"}
     if not pdf_dir.exists() or not required.issubset({p.name for p in pdf_dir.glob("*.pdf")}):
+        if verbose:
+            print("Generating dataset PDFs...")
         generate_dataset(output_dir=pdf_dir)
 
+    if verbose:
+        print("Extracting MSA...")
     contract, msa_call = extract_contract(
         pdf_dir / f"{MSA_DOCUMENT_ID}.pdf", MSA_DOCUMENT_ID, model=model
     )
+    if verbose:
+        print("Extracting SOW...")
     sow, sow_call = extract_sow(pdf_dir / f"{SOW_DOCUMENT_ID}.pdf", SOW_DOCUMENT_ID, model=model)
+    if verbose:
+        print("Extracting invoice...")
     invoice, invoice_call = extract_invoice(pdf_dir / f"{invoice_id}.pdf", model=model)
 
+    if verbose:
+        print("Running rate check...")
     rate_findings, rate_rules = check_rate_mismatches(invoice, contract)
+    if verbose:
+        print("Running aggregate cap check...")
     cap_findings, cap_rules = check_aggregate_cap(invoice, contract)
     semantic_findings, semantic_rules, semantic_calls = _run_semantic_path(
-        invoice, contract, sow, model
+        invoice, contract, sow, model, verbose=verbose
     )
 
     findings = [*rate_findings, *cap_findings, *semantic_findings]
     rule_results = [*rate_rules, *cap_rules, *semantic_rules]
+
+    if verbose:
+        for f in [*rate_findings, *cap_findings]:
+            label = f.invoice_line_id or "invoice"
+            print(f"Finding: {f.finding_type.value} {label}")
 
     # Line-scoped findings mark their line; the invoice-scoped cap finding
     # (invoice_line_id=None) leaves every line clean by design.

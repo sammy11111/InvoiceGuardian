@@ -28,6 +28,9 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--results-dir", type=Path, default=DEFAULT_RESULTS_DIR)
     parser.add_argument("--views-dir", type=Path, default=DEFAULT_VIEWS_DIR)
     parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument(
+        "--verbose", action="store_true", help="Print pipeline stage progress to stdout"
+    )
     args = parser.parse_args(argv)
 
     if args.all:
@@ -44,7 +47,9 @@ def main(argv: list[str]) -> int:
     if not args.invoice_id:
         parser.error("invoice_id is required unless --all is given")
 
-    result = run_analysis(args.invoice_id, pdf_dir=args.pdf_dir, model=args.model)
+    result = run_analysis(
+        args.invoice_id, pdf_dir=args.pdf_dir, model=args.model, verbose=args.verbose
+    )
     print(result.model_dump_json(indent=2))
     return 0
 
