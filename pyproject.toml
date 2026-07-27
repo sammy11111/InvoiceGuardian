@@ -3,7 +3,7 @@ name = "invoiceguardian"
 version = "0.1.0"
 description = "InvoiceGuardian — Service Invoice Exception Review"
 authors = [
-    { name = "Sammy Ibrahim", email = "sammy_ibraham@hotmail.com" }
+    { name = "Sammy Ibrahim", email = "6080220+sammy11111@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
