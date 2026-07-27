@@ -16,7 +16,7 @@ An honest statement of what this system is and is not. These limits are delibera
 ## System behavior
 - The system reports consistency of an invoice with the supplied contract and SOW. It does not decide whether to pay, does not declare fraud, does not determine whether services were actually delivered, and does not provide legal or accounting advice.
 - Every external action is a draft requiring human approval. Nothing is ever sent, filed, or paid by the system.
-- The model is used only for typed extraction and bounded semantic comparison. All arithmetic, date, cap, rate, and reference checks are ordinary code.
+- The model is used only for typed extraction and bounded semantic comparison. Rate mismatches and aggregate monthly-cap breaches are checked by ordinary code (`checks/rate_check.py`, `checks/aggregate_cap.py`) — not the model. There is no check that an invoice's stated total is consistent with the sum of its own line items, no date-validity checking (service periods and contract effective dates are extracted but never compared against each other), and no validation that an invoice's SOW reference matches the governing SOW.
 - Ambiguous scope questions are escalated to a human, by design. Escalation is scored as correct behavior, not a failure.
 - The operational trace is a structured render of pipeline state (inputs, versions, rule results, model calls, evidence, disposition). It is not chain-of-thought and does not expose model reasoning.
 
