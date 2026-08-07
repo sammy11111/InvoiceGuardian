@@ -1,90 +1,131 @@
 # InvoiceGuardian
 
-InvoiceGuardian checks a service invoice against its governing contract and Statement of Work, and produces evidence-cited exception findings — every finding is a draft requiring human approval, never an automated payment or fraud determination.
+[![CI](https://github.com/sammy11111/InvoiceGuardian/actions/workflows/ci.yml/badge.svg)](https://github.com/sammy11111/InvoiceGuardian/actions/workflows/ci.yml)
 
-**Live demo:** https://web-production-8e619.up.railway.app
+InvoiceGuardian is an evidence-cited review system for service invoices. It compares an invoice with its governing contract and Statement of Work, separates deterministic controls from bounded model tasks, and produces draft exception findings for human approval.
 
-## Evaluation methodology
+**[Open the live demo](https://web-production-8e619.up.railway.app)** · [Evaluation rubric](SCORING.md) · [Limitations](LIMITATIONS.md) · [Roadmap](ROADMAP.md)
 
-This project is built around one claim: the evaluation was designed before the system that would be evaluated existed, and the grading logic never touches the model it's grading.
+The demo uses six persisted synthetic scenarios. It does not send documents to a model or run inference when a visitor clicks through the interface.
 
-**Preregistration.** Commit [`28dad57`](https://github.com/sammy11111/InvoiceGuardian/commit/28dad57d9c8e22ff5973b7d227cf7ebd5e4d303e) (2026-07-15 19:19:18) added the scenario specification, the answer keys, and the scoring rules (`scenario-spec.md`, `answer_keys.json`, `SCORING.md`) — zero implementation code. The evaluator itself wasn't written until commit [`7849045`](https://github.com/sammy11111/InvoiceGuardian/commit/78490453f8579b1791b23a2b723178e816ea806e) (2026-07-15 23:08:46), **3h49m later**. The scoring rules could not have been shaped around what the code turned out to do, because the code didn't exist yet. That ordering is in the commit log, not a claim about intent.
+## What this project demonstrates
 
-**The evaluator is deterministic.** `src/invoiceguardian/evaluation/evaluator.py` imports `statistics`, `dataclasses`, `decimal`, and this project's own `evaluation`/`schemas` modules. Nothing else. There is no reference anywhere in the file to the Anthropic client, a model name, or an API key. It scores an already-produced pipeline result against `answer_keys.json` with plain comparisons — grading is not itself a judgment call made by a model.
+- **Applied AI architecture:** schema-constrained extraction and narrowly scoped semantic classification, with arithmetic and policy checks kept in ordinary Python.
+- **Evidence-first outputs:** each finding carries source quotes and references instead of an unsupported conclusion.
+- **Human control:** every finding is a draft; ambiguous scope is escalated rather than resolved automatically.
+- **Evaluation engineering:** the scenario specification, answer keys, and scoring rules were committed before implementation, and a deterministic evaluator enforces hard gates.
+- **Full-stack delivery:** Python 3.12, FastAPI, Pydantic v2, Next.js, TypeScript, Tailwind CSS, a deployed demo, and reproducible synthetic data generation.
+- **Quality controls:** 137 collected Python tests plus 12 frontend tests, with Ruff, Pyright, ESLint, and production builds enforced in CI.
 
-**137 tests**, counted directly with `pytest --collect-only`, across 21 files:
-- schema validation (`test_runtime_schema.py`, `test_evaluation_schema.py`, `test_json_schema_utils.py`)
-- deterministic checks (`test_rate_check.py`, `test_aggregate_cap.py`, `test_role_matching.py`, `test_normalize.py`, `test_semantic_assembly.py`)
-- the evaluator and its hard gates (`test_evaluation_gates.py`, `test_evaluation_scoring.py`, `test_evaluation_addenda.py`, `test_evaluation_real_s1_s6.py`)
-- the pipeline end-to-end against the real model (`test_analyze_s1_s6_e2e.py`, `test_analyze_semantic_e2e.py`, `test_analyze_disposition.py`)
-- synthetic dataset generation (`test_dataset_generator.py`)
-- the serving API (`test_api.py`, `test_api_view.py`, `test_api_middleware.py`)
-- the Anthropic client's retry policy (`test_anthropic_client_retry.py`)
+## System at a glance
 
-## A documented model failure
+```mermaid
+flowchart LR
+    A[Contract + SOW + invoice PDFs] --> B[PDF parsing]
+    B --> C[Schema-constrained typed extraction]
+    C --> D[Normalize + exact role matching]
+    D --> E[Deterministic rate and aggregate-cap checks]
+    D -->|Role unresolved| F[Bounded semantic classification]
+    E --> G[Evidence-cited finding assembly]
+    F --> G
+    G --> H{Disposition}
+    H -->|No finding| I[Clean]
+    H -->|Exception or ambiguity| J[Draft for human review]
+```
 
-`SCORING.md:112` commits, in advance, to a specific standard: *"No metric is omitted because it is unflattering. At least one genuine failure is analyzed in the write-up."*
+| Deterministic Python | Model-assisted | Human decision |
+| --- | --- | --- |
+| PDF parsing, normalization, exact role matching, rate comparison, aggregate-cap arithmetic, evidence validation, and evaluation | Typed contract/SOW/invoice extraction and semantic classification only after exact role matching fails | Approve, reject, or investigate every draft finding; no payment action is automated |
 
-Scenario S4 is that failure. Its invoice line ("ERP Rollout Advisory Support") is deliberately worded to be ambiguous against the supplied contract and SOW — the correct behavior is an AMBIGUOUS classification, which escalates the finding to human review rather than resolving it automatically. Under the frozen classification prompt, the model instead classifies it as a confident match. That's a miss: the system should abstain and didn't.
+Every model call uses schema-constrained tool output rather than free text. The evaluator never calls a model: it scores an already-produced pipeline result against [`answer_keys.json`](answer_keys.json) using deterministic comparisons.
 
-This isn't a bug that got quietly patched around. It's encoded as a permanent test — `tests/test_evaluation_gates.py:221`, `test_s4_confident_exception_fails_gate_3` — which builds exactly this confident-instead-of-ambiguous output and asserts the evaluator scores it as `abstention == "incorrect_confident"` and fails hard gate 3. The gate that catches this behavior is itself under test. Loosening the gate to let S4 pass would break the test suite; the failure stays visible by construction, not by discipline that could lapse.
+## Explore the demo
 
-The reason to publish this rather than pick a different scenario for the demo: an evaluation methodology that only ever reports passing results isn't verifiable as a methodology — it's a highlight reel. A gate that can catch and hold its own system's failure is the evidence that the harness does what it claims to do.
+The deployed interface serves six precomputed runs from [`data/scenario_runs/`](data/scenario_runs/) and their UI projections from [`data/scenario_views/`](data/scenario_views/). The set includes planted rate, authorization, and aggregate-cap exceptions; clean invoices; and one mandatory escalation case.
 
-## Architecture
+No API key is required to explore the demo. The same app also exposes:
 
-Parsing, arithmetic, rate comparison, and cap checks are ordinary Python — deterministic, no model call. The model is used for exactly two things: typed extraction of contract/SOW/invoice fields, and classifying one invoice line's authorization status when deterministic exact-match role lookup fails. Every model call is schema-constrained tool use, not free text. An AMBIGUOUS classification always resolves to `ESCALATE`, which routes the finding to `awaiting_review` — a human decision point, not an automated resolution.
+- `GET /health`
+- `GET /api/scenarios`
+- `GET /api/scenarios/{invoice_id}`
 
-## Scope and limitations
+## Evaluation integrity
 
-- Deterministic checks cover contract rate mismatches and aggregate monthly spending caps (`checks/rate_check.py`, `checks/aggregate_cap.py`). There is no check that an invoice's stated total is arithmetically consistent with its own line items, and no date-validity checking — service periods and contract effective dates are extracted and recorded, never compared against each other. Both are extension work, not shipped.
-- The missing totals check is a deliberate omission, not an oversight: `extraction/prompts/invoice_extraction_v1.md:10` explicitly instructs the model to *"record the total exactly as printed on the invoice, even if it appears inconsistent with the line items"* — extraction and validation are kept separate on purpose.
-- The live demo serves six pre-computed, persisted results (`data/scenario_runs/`, `data/scenario_views/`) through the FastAPI backend. It does not call the model at request time. No `ANTHROPIC_API_KEY` is set on the deployment — confirmed on the Railway service's own environment variables. Nothing you click on the live demo triggers live inference.
-- All contract, SOW, and invoice documents are synthetic, generated by `src/invoiceguardian/dataset_generator`. No real commercial data is used anywhere in this repository.
-- Built solo, under hackathon time constraints (Kanz AI Training Hackathon, July 2026). That shaped scope directly: one contract and one SOW against six invoices rather than a larger benchmark, digitally-generated PDFs only (no OCR, no scanned documents), no arbitrary document upload, a single runtime model rather than multi-model routing or consensus.
+### Evaluation before implementation
 
-## Running locally
+Commit [`28dad57`](https://github.com/sammy11111/InvoiceGuardian/commit/28dad57d9c8e22ff5973b7d227cf7ebd5e4d303e) added [`scenario-spec.md`](scenario-spec.md), [`answer_keys.json`](answer_keys.json), and [`SCORING.md`](SCORING.md) with no implementation code. The evaluator was added in commit [`7849045`](https://github.com/sammy11111/InvoiceGuardian/commit/78490453f8579b1791b23a2b723178e816ea806e), 3 hours and 49 minutes later. The grading rules therefore existed before the system they grade.
+
+### Deterministic grading
+
+[`src/invoiceguardian/evaluation/evaluator.py`](src/invoiceguardian/evaluation/evaluator.py) contains no model client, model name, or API-key dependency. It applies plain comparisons and hard gates to already-produced results. The test suite covers schemas, deterministic checks, grounding, scoring, failure gates, synthetic data generation, API behavior, retry policy, and pipeline integration.
+
+```bash
+uv run pytest --collect-only -q
+# 137 tests collected
+```
+
+### A documented model failure
+
+[`SCORING.md`](SCORING.md) commits in advance to analyzing at least one genuine failure. Scenario S4 is that failure: an intentionally ambiguous invoice line should be classified as `AMBIGUOUS` and escalated, but the frozen classifier instead returns a confident match.
+
+The behavior is not hidden or patched around. [`test_s4_confident_exception_fails_gate_3`](tests/test_evaluation_gates.py) asserts that a confident result is scored as `incorrect_confident` and fails hard gate 3. Publishing the miss shows that the evaluation harness can detect and retain an unfavorable result.
+
+## Run locally
 
 Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync --frozen
-```
-
-Model calls (extraction and semantic comparison) need an Anthropic API key. Create a `.env` file at the repo root:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
-Run the test suite:
-
-```bash
+uv run ruff check .
+uv run pyright
 uv run pytest
 ```
 
-Run the pipeline on one invoice:
-
-```bash
-uv run python -m invoiceguardian.analyze INV-2026-061
-```
-
-Run every scenario and persist results (what the live demo serves):
-
-```bash
-uv run python -m invoiceguardian.analyze --all --persist
-```
-
-The evaluator has no separate CLI — it's exercised through its test suite:
-
-```bash
-uv run pytest tests/test_evaluation_gates.py tests/test_evaluation_scoring.py tests/test_evaluation_real_s1_s6.py
-```
-
-`test_evaluation_real_s1_s6.py` runs the pipeline against the real model and is skipped automatically if `ANTHROPIC_API_KEY` isn't set.
-
-Serve the API locally:
+Serve the API and committed static frontend at `http://localhost:8000`:
 
 ```bash
 uv run uvicorn invoiceguardian.api.app:app --reload
 ```
+
+Model-backed extraction and semantic comparison require an Anthropic API key in a repository-root `.env` file:
+
+```dotenv
+ANTHROPIC_API_KEY=your-key-here
+```
+
+Run one invoice or regenerate all persisted scenarios:
+
+```bash
+uv run python -m invoiceguardian.analyze INV-2026-061
+uv run python -m invoiceguardian.analyze --all --persist
+```
+
+For frontend development:
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+## Repository map
+
+| Area | Purpose |
+| --- | --- |
+| [`src/invoiceguardian/extraction/`](src/invoiceguardian/extraction/) | Schema-constrained document extraction, normalization, retry handling, and prompts |
+| [`src/invoiceguardian/checks/`](src/invoiceguardian/checks/) | Exact role matching, deterministic rate/cap checks, and bounded semantic assembly |
+| [`src/invoiceguardian/evaluation/`](src/invoiceguardian/evaluation/) | Deterministic matching, grounding, metrics, and hard gates |
+| [`src/invoiceguardian/api/`](src/invoiceguardian/api/) | FastAPI endpoints, public-demo middleware, and UI projections |
+| [`frontend/`](frontend/) | Next.js/TypeScript review interface, exported as a static deployment artifact |
+| [`tests/`](tests/) | Backend, pipeline, evaluator, and API verification |
+| [`scenario-spec.md`](scenario-spec.md) + [`answer_keys.json`](answer_keys.json) | Frozen synthetic scenarios and expected outcomes |
+
+## Scope and limitations
+
+- All documents are synthetic; this benchmark does not estimate accuracy across arbitrary real-world contracts.
+- Inputs are digitally generated English-language PDFs. OCR, scanned documents, and arbitrary uploads are out of scope.
+- Shipped deterministic checks cover rate mismatches and aggregate monthly caps. Invoice-total arithmetic, date-validity checks, and SOW-reference validation are documented extension work.
+- The system does not decide whether to pay, determine whether services were delivered, or provide legal or accounting advice.
+- The current deployment is a single-user demonstration with persisted flat-file scenarios, not a production accounts system.
+
+See [`LIMITATIONS.md`](LIMITATIONS.md) for the complete boundary statement and [`ROADMAP.md`](ROADMAP.md) for the path to broader synthetic coverage and professionally labeled real-world validation.
