@@ -6,6 +6,8 @@ InvoiceGuardian is an evidence-cited review system for service invoices. It comp
 
 **[Open the live demo](https://web-production-8e619.up.railway.app)** · [Evaluation rubric](SCORING.md) · [Limitations](LIMITATIONS.md) · [Roadmap](ROADMAP.md)
 
+![InvoiceGuardian demo showing the scenario list, evidence-cited finding details, and reviewer controls](https://github.com/user-attachments/assets/8571ff6f-c57e-4b0a-b577-b84ebf656e0f)
+
 The demo uses six persisted synthetic scenarios. It does not send documents to a model or run inference when a visitor clicks through the interface.
 
 ## What this project demonstrates
@@ -129,3 +131,9 @@ npm run dev
 - The current deployment is a single-user demonstration with persisted flat-file scenarios, not a production accounts system.
 
 See [`LIMITATIONS.md`](LIMITATIONS.md) for the complete boundary statement and [`ROADMAP.md`](ROADMAP.md) for the path to broader synthetic coverage and professionally labeled real-world validation.
+
+## Usage and licensing
+
+Copyright © 2026 Sammy Ibrahim. All rights reserved.
+
+This repository is publicly visible for portfolio and evaluation purposes. No license is granted to copy, modify, distribute, sublicense, or use the code, in whole or in part.
